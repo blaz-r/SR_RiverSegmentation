@@ -1,9 +1,9 @@
 import typing
-import mmseg.models
 import pytorch_lightning as pl
 import torch
 import torchmetrics
 import torch.nn as nn
+from mmseg.models import ResNetV1c, DepthwiseSeparableASPPHead
 from sklearn.metrics import f1_score, precision_score, recall_score
 
 
@@ -27,7 +27,7 @@ class S2S2Net(pl.LightningModule):
 
 
         ## Input Module (Encoder/Backbone).
-        self.deeplabv3plus_backbone = mmseg.models.backbones.ResNetV1c(
+        self.deeplabv3plus_backbone = ResNetV1c(
             in_channels=6,  # RGB+NIR
             depth=50,
             num_stages=4,
@@ -42,7 +42,7 @@ class S2S2Net(pl.LightningModule):
 
         ## Middle Module (Decoder).
         # This head is the implementation of DeepLabV3+.
-        self.deeplabv3plus_head = mmseg.models.decode_heads.DepthwiseSeparableASPPHead(
+        self.deeplabv3plus_head = DepthwiseSeparableASPPHead(
             in_channels=2048,
             in_index=3,
             channels=512,
@@ -110,8 +110,8 @@ class S2S2Net(pl.LightningModule):
             exit(1)
 
         # Evaluation metrics to know how good the segmentation results are
-        self.iou = torchmetrics.JaccardIndex(num_classes=2)
-        self.f1_score = torchmetrics.F1Score(num_classes=1)
+        # self.iou = torchmetrics.JaccardIndex(num_classes=2)
+        # self.f1_score = torchmetrics.F1Score(num_classes=1)
 
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
